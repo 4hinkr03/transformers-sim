@@ -72,4 +72,13 @@ public class Location {
     public void setY(int y) {
         this.y = y;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof  Location) {
+            Location l = (Location) obj;
+            return l.getX() == getX() && l.getY() == getY();
+        }
+        return super.equals(obj);
+    }
 }
