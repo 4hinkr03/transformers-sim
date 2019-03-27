@@ -73,12 +73,12 @@ public class Location {
         this.y = y;
     }
 
+    public boolean matches(Location l) {
+        return l.getX() == getX() && l.getY() == getY();
+    }
+
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof  Location) {
-            Location l = (Location) obj;
-            return l.getX() == getX() && l.getY() == getY();
-        }
-        return super.equals(obj);
+    public String toString() {
+        return "[x=" + getX() + ", y=" + getY() + "]";
     }
 }

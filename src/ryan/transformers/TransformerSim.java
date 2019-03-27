@@ -56,11 +56,7 @@ public class TransformerSim extends Simulator {
     protected void update() {
         if (step % TransformerConfig.MAX_PATH  == 0) {
             bots.forEach(bot -> {
-                int xDiff = bot.getLocation().getX() - allSpark.getLocation().getX();
-                int yDiff = bot.getLocation().getY() - allSpark.getLocation().getY();
-                double hypotenuse = Math.hypot(xDiff, yDiff);
-                double fitness = 1 / hypotenuse;
-                bot.setFitness(fitness);
+                bot.setFitness(planet.calculateFitness(allSpark.getLocation(), bot.getLocation()));
             });
             // selection - select from gene pool
             List<AutoBot> rocketSelection = selection();
@@ -83,7 +79,6 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> selection() {
         Random random = new Random();
         List<AutoBot> genePool = generateGenePool();
-        System.out.println("genepool=" + genePool.size());
         List<AutoBot> selection = new ArrayList<>();
 
         if(!genePool.isEmpty()) {
@@ -104,14 +99,13 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> generateGenePool() {
         List<AutoBot> genePool = new ArrayList<>();
         System.out.println("AutoBots size=" + bots.size());
-        bots.forEach(rocket -> {
+        bots.forEach(bot -> {
             // calculate the number of rockets to add to the gene pool
             // the greater the fitness, the more rockets added to the gene pool
-            int rocketSize = (int) (rocket.getFitness() * 100 * TransformerConfig.MAX_TRANSFORMERS);
+            int botSize = (int) (bot.getFitness() * 100 * TransformerConfig.MAX_TRANSFORMERS);
             // add the number of calculated rockets to the gene pool
-            //System.out.println("fitness=" + rocket.getFitness() + ":" + rocketSize + " number of rockets");
-            for(int i = 0; i < rocketSize; i++) {
-                genePool.add(rocket);
+            for(int i = 0; i < botSize; i++) {
+                genePool.add(bot);
             }
         });
         return genePool;
@@ -151,9 +145,15 @@ public class TransformerSim extends Simulator {
             int nextX = currentLocation.getX() + xDiff;
             int nextY = currentLocation.getY() + yDiff;
 
-            nextX = mutate(nextX);
-            nextY = mutate(nextY);
-
+            if(mutate()) {
+                // commented out since mutation should be random instead of smart, for now
+                //Location mutateLoc = planet.getFittestAdjacentLocation(allSpark.getLocation(), currentLocation);
+                Location mutateLoc = planet.getAdjacentLocation(currentLocation);
+                if(mutateLoc != null) {
+                    nextX = mutateLoc.getX();
+                    nextY = mutateLoc.getY();
+                }
+            }
             Location nextLocation = null;
 
             if(planet.withinBounds(nextX, nextY)) {
@@ -167,7 +167,6 @@ public class TransformerSim extends Simulator {
         }
         return path;
     }
-
 
     /**
      * Populate the planet with AutoBots and single AllSpark
@@ -190,7 +189,6 @@ public class TransformerSim extends Simulator {
         bots.forEach(bot -> planet.setAgent(null, bot.getLocation()));
         bots.clear();
         planet.clearWorld();
-
     }
 
     /**
@@ -203,14 +201,10 @@ public class TransformerSim extends Simulator {
     }
 
     /**
-     * Return a mutated coordinate based on a low probability
-     * @param coordinate to be mutated
-     * @return a coordinate that may have been mutated (altered)
+     * @return whether the path should be mutate
      */
-    private int mutate(int coordinate) {
-        //invert the coordinate for mutation
-        return RANDOM.nextDouble() >= 0.02 ? coordinate : coordinate + RANDOM.nextInt(3) - 1;
+    private boolean mutate() {
+        return RANDOM.nextDouble() <= 0.02;
     }
-
 
 }

@@ -49,7 +49,6 @@ public class AutoBot extends Agent {
         if(!hasReachedEnergySource()) {
             int nextLocationIndex = path.indexOf(location) + 1;
             if(nextLocationIndex < path.size()) {
-                //space.setAgent(new RocketTrail(location), location);
                 planet.setAgent(null, location);
                 location = path.get(nextLocationIndex);
                 planet.setAgent(this, location);
