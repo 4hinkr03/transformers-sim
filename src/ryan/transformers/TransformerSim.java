@@ -88,12 +88,8 @@ public class TransformerSim extends Simulator {
 
         if(!genePool.isEmpty()) {
             for(int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
-                AutoBot randomAutoBot1 = genePool.get(random.nextInt(genePool.size()));
-                // remove the AutoBot from the gene pool to ensure it isn't reselected when getting the
-                // next random AutoBot
-                AutoBot randomAutoBot2 = genePool.get(random.nextInt(genePool.size()));
-                //add the AutoBot pair to the selection
-                selection.add(reproduce(randomAutoBot1, randomAutoBot2));
+                AutoBot randomAutoBot = genePool.get(random.nextInt(genePool.size()));
+                selection.add(reproduce(randomAutoBot));
             }
         }
 
@@ -123,14 +119,13 @@ public class TransformerSim extends Simulator {
 
     /**
      * Reproduce a baby AutoBot based on the genes of the parents (paths)
-     * @param dad AutoBot
-     * @param mum AutoBot
+     * @param parent AutoBot
      * @return a baby AutoBot with a path generated based on the parents genes
      */
-    private AutoBot reproduce(AutoBot dad, AutoBot mum) {
+    private AutoBot reproduce(AutoBot parent) {
         AutoBot baby = new AutoBot(TransformerConfig.AUTOBOT_START_LOCATION);
 
-        List<Location> mergedPath = mergePath(baby.getLocation(), dad, mum);
+        List<Location> mergedPath = mergePath(baby.getLocation(), parent);
         baby.setPath(mergedPath);
         return baby;
     }
@@ -138,17 +133,15 @@ public class TransformerSim extends Simulator {
     /**
      * Merge the paths of the mum and dad to produce a path based on the parents genes
      * @param start location
-     * @param dad AutoBot
-     * @param mum AutoBot
+     * @param parent AutoBo
      * @return a path made up of both parents paths as this is makes up their genes
      */
-    private List<Location> mergePath(Location start, AutoBot dad, AutoBot mum) {
+    private List<Location> mergePath(Location start, AutoBot parent) {
         List<Location> path = new ArrayList<>();
         path.add(start);
 
         for(int i = 1; i < TransformerConfig.MAX_PATH; i++) {
-            List<Location> parentPath = i % 2 == 0 ? mum.getPath() : dad.getPath();
-            //List<Location> parentPath = mum.getFitness() > dad.getFitness() ? mum.getPath() : dad.getPath();
+            List<Location> parentPath = parent.getPath();
             Location nextParentLocation = parentPath.get(i);
             Location currentParentLocation = parentPath.get(i-1);
             int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
