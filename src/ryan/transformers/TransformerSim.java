@@ -5,8 +5,8 @@ import static ryan.transformers.TransformerConfig.RANDOM;
 import prins.simulator.Simulator;
 import prins.simulator.model.Location;
 import prins.simulator.view.Gui;
+import ryan.transformers.model.AllSpark;
 import ryan.transformers.model.AutoBot;
-import ryan.transformers.model.EnergySource;
 import ryan.transformers.model.Planet;
 
 import java.awt.*;
@@ -19,7 +19,7 @@ public class TransformerSim extends Simulator {
     private Planet planet;
     private Gui gui;
     private List<AutoBot> bots;
-    private EnergySource energySource;
+    private AllSpark allSpark;
 
 
     public TransformerSim() {
@@ -28,7 +28,7 @@ public class TransformerSim extends Simulator {
         this.bots = new ArrayList<>();
 
         gui.registerAgentColors(AutoBot.class, Color.GREEN);
-        gui.registerAgentColors(EnergySource.class, Color.RED);
+        gui.registerAgentColors(AllSpark.class, Color.RED);
 
         populate();
     }
@@ -56,8 +56,8 @@ public class TransformerSim extends Simulator {
     protected void update() {
         if (step % TransformerConfig.MAX_PATH  == 0) {
             bots.forEach(bot -> {
-                int xDiff = bot.getLocation().getX() - energySource.getLocation().getX();
-                int yDiff = bot.getLocation().getY() - energySource.getLocation().getY();
+                int xDiff = bot.getLocation().getX() - allSpark.getLocation().getX();
+                int yDiff = bot.getLocation().getY() - allSpark.getLocation().getY();
                 double hypotenuse = Math.hypot(xDiff, yDiff);
                 double fitness = 1 / hypotenuse;
                 bot.setFitness(fitness);
@@ -170,11 +170,11 @@ public class TransformerSim extends Simulator {
 
 
     /**
-     * Populate the planet with AutoBots and single EnergySource
+     * Populate the planet with AutoBots and single AllSpark
      */
     private void populate() {
-        this.energySource = new EnergySource();
-        planet.setAgent(energySource, energySource.getLocation());
+        this.allSpark = new AllSpark();
+        planet.setAgent(allSpark, allSpark.getLocation());
 
         for(int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
             AutoBot bot = new AutoBot(TransformerConfig.AUTOBOT_START_LOCATION);
