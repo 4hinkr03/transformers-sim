@@ -57,20 +57,6 @@ public class Planet extends Environment {
         return null;
     }
 
-    public Location getFittestAdjacentLocation(Location allSpark, Location location) {
-        List<Location> locations = getAdjacentLocations(location);
-        Location fitLocation = null;
-        double fitness = 0;
-        for(Location adjLoc : locations) {
-            double adjFitness = calculateFitness(allSpark, adjLoc);
-            if(adjFitness > fitness) {
-                fitLocation = adjLoc;
-                fitness = adjFitness;
-            }
-        }
-        return fitLocation;
-    }
-
     public void clearWorld() {
         for(int x = 0; x < getWidth(); x++) {
             for(int y = 0; y < getHeight(); y++) {

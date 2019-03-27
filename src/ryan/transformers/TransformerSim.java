@@ -21,7 +21,6 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> bots;
     private AllSpark allSpark;
 
-
     public TransformerSim() {
         this.planet = new Planet();
         this.gui = new Gui(planet);
@@ -146,8 +145,6 @@ public class TransformerSim extends Simulator {
             int nextY = currentLocation.getY() + yDiff;
 
             if(mutate()) {
-                // commented out since mutation should be random instead of smart, for now
-                //Location mutateLoc = planet.getFittestAdjacentLocation(allSpark.getLocation(), currentLocation);
                 Location mutateLoc = planet.getAdjacentLocation(currentLocation);
                 if(mutateLoc != null) {
                     nextX = mutateLoc.getX();
@@ -204,7 +201,7 @@ public class TransformerSim extends Simulator {
      * @return whether the path should be mutate
      */
     private boolean mutate() {
-        return RANDOM.nextDouble() <= 0.02;
+        return RANDOM.nextDouble() <= 0.05;
     }
 
 }
