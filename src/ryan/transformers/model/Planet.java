@@ -6,7 +6,6 @@ import prins.simulator.model.Environment;
 import prins.simulator.model.Location;
 import ryan.transformers.TransformerConfig;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -76,6 +75,9 @@ public class Planet extends Environment {
         int xDiff = location.getX() - allSpark.getX();
         int yDiff = location.getY() - allSpark.getY();
         double hypotenuse = Math.hypot(xDiff, yDiff);
+        if(hypotenuse == 0) {
+            return 1;
+        }
         return 1 / hypotenuse;
     }
 
