@@ -48,6 +48,11 @@ public class Planet extends Environment {
         return random.nextInt((max - min) + 1) + min;
     }
 
+    public boolean isBlock(Location location) {
+        Agent agent = getAgent(location);
+        return agent != null && agent instanceof Block;
+    }
+
     public Location getAdjacentLocation(Location location) {
         List<Location> locations = getAdjacentLocations(location);
         if(!locations.isEmpty()) {
@@ -71,14 +76,21 @@ public class Planet extends Environment {
         return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
     }
 
-    public double calculateFitness(Location allSpark, Location location) {
-        int xDiff = location.getX() - allSpark.getX();
-        int yDiff = location.getY() - allSpark.getY();
+    public double calculateFitness(Location allSpark, AutoBot autobot) {
+        int xDiff = autobot.getLocation().getX() - allSpark.getX();
+        int yDiff = autobot.getLocation().getY() - allSpark.getY();
         double hypotenuse = Math.hypot(xDiff, yDiff);
+        int collisions = autobot.getCollisions();
+        double fitness = 0;
         if(hypotenuse == 0) {
-            return 1;
+            fitness = 1;
+        } else {
+            fitness = 1 / hypotenuse;
         }
-        return 1 / hypotenuse;
+        for(int i = 0; i < collisions; i++) {
+            fitness-= fitness * 0.5;
+        }
+        return fitness;
     }
 
     private List<Location> getAdjacentLocations(Location location) {
@@ -86,14 +98,17 @@ public class Planet extends Environment {
         int currentX = location.getX();
         int currentY = location.getY();
 
-        for(int xOffset = -1; xOffset <= 1; xOffset++) {
-            for(int yOffset = -1; yOffset <= 1; yOffset++) {
+        for (int xOffset = -1; xOffset <= 1; xOffset++) {
+            for (int yOffset = -1; yOffset <= 1; yOffset++) {
                 int x = currentX + xOffset;
                 int y = currentY + yOffset;
                 Location adjacentLocation = new Location(x, y);
-                if(withinBounds(x, y)) {
-                    if(!location.matches(adjacentLocation)) {
-                        adjacentLocations.add(adjacentLocation);
+                if (withinBounds(x, y)) {
+                    if (!location.matches(adjacentLocation)) {
+                        if (!isBlock(location)) {
+                            adjacentLocations.add(adjacentLocation);
+                        }
+
                     }
                 }
             }

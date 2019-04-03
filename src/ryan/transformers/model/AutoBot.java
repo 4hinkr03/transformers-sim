@@ -13,14 +13,23 @@ import java.util.List;
 public class AutoBot extends Agent {
 
     private List<Location> path;
-    private double fitness, size;
+    private double fitness;
+    private int size;
+    private int collisions;
     private boolean reachedEnergySource;
 
     public AutoBot(Location location) {
+        this(location, RANDOM.nextInt(4) + 1);
+    }
+
+    public AutoBot(Location location, int size) {
         super(location);
         this.path = new ArrayList<>();
-        this.size = RANDOM.nextDouble() * MAX_SIZE;
+        //size between 1 and 5
+        this.size = size;
         this.reachedEnergySource = false;
+        collisions = 0;
+
     }
 
     /**
@@ -31,7 +40,7 @@ public class AutoBot extends Agent {
         // clear and add the location of the bot to start off the path
         path.clear();
         path.add(location);
-        for (int i = 1; i < TransformerConfig.MAX_PATH; i++) {
+        for (int i = 1; i < getMaxPathSize(); i++) {
             // retrieve the last location within the path
             Location lastLocation = path.get(path.size()-1);
             // calculate the next location using the last known location from the path
@@ -50,8 +59,14 @@ public class AutoBot extends Agent {
             int nextLocationIndex = path.indexOf(location) + 1;
             if(nextLocationIndex < path.size()) {
                 planet.setAgent(null, location);
-                location = path.get(nextLocationIndex);
-                planet.setAgent(this, location);
+                Location nextLocation = path.get(nextLocationIndex);
+                if(!planet.isBlock(nextLocation)) {
+                    location = nextLocation;
+                    planet.setAgent(this, location);
+                } else {
+                    incrementCollisions();
+                }
+
             }
         }
 
@@ -65,12 +80,8 @@ public class AutoBot extends Agent {
         this.fitness = fitness;
     }
 
-    public double getSize() {
+    public int getSize() {
         return size;
-    }
-
-    public double getSpeed() {
-        return 1 / size;
     }
 
     public List<Location> getPath() {
@@ -87,5 +98,21 @@ public class AutoBot extends Agent {
 
     public void setReachedEnergySource(boolean reachedEnergySource) {
         this.reachedEnergySource = reachedEnergySource;
+    }
+
+    public int getMaxPathSize() {
+        return TransformerConfig.MAX_PATH / getSize();
+    }
+
+    public void resetCollisions() {
+        this.collisions = 0;
+    }
+
+    public void incrementCollisions() {
+        this.collisions++;
+    }
+
+    public int getCollisions() {
+        return collisions;
     }
 }
