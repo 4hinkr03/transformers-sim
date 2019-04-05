@@ -76,7 +76,18 @@ public class Planet extends Environment {
         return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
     }
 
-    public double calculateFitness(Location allSpark, AutoBot autobot) {
+    public double calculateFitness(List<AllSpark> allSparks, AutoBot autobot) {
+        double fitness = 0.0;
+        for(AllSpark allSpark : allSparks) {
+            double allSparkFitness = calculateFitness(allSpark.getLocation(), autobot);
+            if(allSparkFitness > fitness) {
+                fitness = allSparkFitness;
+            }
+        }
+        return fitness;
+    }
+
+    private double calculateFitness(Location allSpark, AutoBot autobot) {
         int xDiff = autobot.getLocation().getX() - allSpark.getX();
         int yDiff = autobot.getLocation().getY() - allSpark.getY();
         double hypotenuse = Math.hypot(xDiff, yDiff);

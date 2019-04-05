@@ -21,13 +21,14 @@ public class TransformerSim extends Simulator {
     private Gui gui;
     private List<AutoBot> bots;
     private List<Block> blocks;
-    private AllSpark allSpark;
+    private List<AllSpark> allSparks;
 
     public TransformerSim() {
         this.planet = new Planet();
         this.gui = new Gui(planet);
         this.bots = new ArrayList<>();
         this.blocks = new ArrayList<>();
+        this.allSparks = new ArrayList<>();
 
         gui.registerAgentColors(AutoBot.class, Color.GREEN);
         gui.registerAgentColors(AllSpark.class, Color.RED);
@@ -59,7 +60,7 @@ public class TransformerSim extends Simulator {
     protected void update() {
         if (step % TransformerConfig.MAX_PATH  == 0) {
             bots.forEach(bot -> {
-                bot.setFitness(planet.calculateFitness(allSpark.getLocation(), bot));
+                bot.setFitness(planet.calculateFitness(allSparks, bot));
                 bot.resetCollisions();
             });
 
@@ -81,8 +82,8 @@ public class TransformerSim extends Simulator {
 
         }
 
-        //set allspark location - ensure it remains on the sim
-        planet.setAgent(allSpark, allSpark.getLocation());
+        //set allspark locations - ensure it remains on the sim
+        allSparks.forEach(allSpark -> planet.setAgent(allSpark, allSpark.getLocation()));
 
         //set blocks locations - so they are displayed on the sim
         blocks.forEach(block -> planet.setAgent(block, block.getLocation()));
@@ -188,8 +189,12 @@ public class TransformerSim extends Simulator {
      */
     private void populate() {
         //populate all spark
-        this.allSpark = new AllSpark();
-        planet.setAgent(allSpark, allSpark.getLocation());
+        for(Location location : TransformerConfig.ALL_SPARK_LOCATIONS) {
+            AllSpark allSpark = new AllSpark(location);
+            allSparks.add(allSpark);
+            planet.setAgent(allSpark, allSpark.getLocation());
+        }
+
 
         //populate autobots
         for(int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
@@ -199,13 +204,14 @@ public class TransformerSim extends Simulator {
         }
 
         //populate blocks
-        int initalRow = 10;
-        for(int y = initalRow; y < planet.getHeight() - initalRow; y++) {
-            Block block = new Block(new Location(planet.getWidth() / 2, y));
-            blocks.add(block);
-            planet.setAgent(block, block.getLocation());
+        int initalRow = 12;
+        for(int y = 0; y < planet.getHeight(); y++) {
+            if(y <= initalRow || y >= planet.getHeight()-initalRow) {
+                Block block = new Block(new Location(planet.getWidth() / 2, y));
+                blocks.add(block);
+                planet.setAgent(block, block.getLocation());
+            }
         }
-
     }
 
     /**
