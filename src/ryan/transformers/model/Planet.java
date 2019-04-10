@@ -9,6 +9,7 @@ import ryan.transformers.TransformerConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class Planet extends Environment {
 
@@ -51,6 +52,11 @@ public class Planet extends Environment {
     public boolean isBlock(Location location) {
         Agent agent = getAgent(location);
         return agent != null && agent instanceof Block;
+    }
+
+    public boolean isAdjacentLocationBlock(Location location) {
+        Stream<Location> stream = getAdjacentLocations(location).stream();
+        return stream.filter(loc -> isBlock(loc)).count() > 0;
     }
 
     public Location getAdjacentLocation(Location location) {

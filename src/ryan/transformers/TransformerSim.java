@@ -5,10 +5,7 @@ import static ryan.transformers.TransformerConfig.RANDOM;
 import prins.simulator.Simulator;
 import prins.simulator.model.Location;
 import prins.simulator.view.Gui;
-import ryan.transformers.model.AllSpark;
-import ryan.transformers.model.AutoBot;
-import ryan.transformers.model.Block;
-import ryan.transformers.model.Planet;
+import ryan.transformers.model.*;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -22,6 +19,7 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> bots;
     private List<Block> blocks;
     private List<AllSpark> allSparks;
+    private int generation;
 
     public TransformerSim() {
         this.planet = new Planet();
@@ -29,6 +27,7 @@ public class TransformerSim extends Simulator {
         this.bots = new ArrayList<>();
         this.blocks = new ArrayList<>();
         this.allSparks = new ArrayList<>();
+        this.generation = 1;
 
         gui.registerAgentColors(AutoBot.class, Color.GREEN);
         gui.registerAgentColors(AllSpark.class, Color.RED);
@@ -59,6 +58,8 @@ public class TransformerSim extends Simulator {
     @Override
     protected void update() {
         if (step % TransformerConfig.MAX_PATH  == 0) {
+            System.out.println("generation = " + generation
+            );
             bots.forEach(bot -> {
                 bot.setFitness(planet.calculateFitness(allSparks, bot));
                 bot.resetCollisions();
@@ -72,6 +73,10 @@ public class TransformerSim extends Simulator {
 
             // add the new rockets selection
             addAll(rocketSelection);
+
+            //reset step and increment generation
+            generation++;
+            step = 0;
         }
 
         //autobots act
@@ -156,27 +161,34 @@ public class TransformerSim extends Simulator {
             List<Location> parentPath = parent.getPath();
             Location nextParentLocation = parentPath.get(i);
             Location currentParentLocation = parentPath.get(i-1);
-            int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
-            int yDiff = nextParentLocation.getY() - currentParentLocation.getY();
-
             Location currentLocation = path.get(path.size()-1);
-            int nextX = currentLocation.getX() + xDiff;
-            int nextY = currentLocation.getY() + yDiff;
+            Location nextLocation;
 
-            if(mutate()) {
-                Location mutateLoc = planet.getAdjacentLocation(currentLocation);
-                if(mutateLoc != null) {
-                    nextX = mutateLoc.getX();
-                    nextY = mutateLoc.getY();
+            if(!planet.isAdjacentLocationBlock(currentLocation)) {
+                int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
+                int yDiff = nextParentLocation.getY() - currentParentLocation.getY();
+
+                int nextX = currentLocation.getX() + xDiff;
+                int nextY = currentLocation.getY() + yDiff;
+
+                if(mutate()) {
+                    Location mutateLoc = planet.getAdjacentLocation(currentLocation);
+                    if(mutateLoc != null) {
+                        nextX = mutateLoc.getX();
+                        nextY = mutateLoc.getY();
+                    }
                 }
-            }
-            Location nextLocation = null;
 
-            if(planet.withinBounds(nextX, nextY)) {
-                nextLocation = new Location(nextX, nextY);
+                if(planet.withinBounds(nextX, nextY)) {
+                    nextLocation = new Location(nextX, nextY);
+                } else {
+                    nextLocation = currentLocation;
+                }
             } else {
                 nextLocation = currentLocation;
             }
+
+
 
             path.add(nextLocation);
 
@@ -204,7 +216,7 @@ public class TransformerSim extends Simulator {
         }
 
         //populate blocks
-        int initalRow = 12;
+        int initalRow = 7;
         for(int y = 0; y < planet.getHeight(); y++) {
             if(y <= initalRow || y >= planet.getHeight()-initalRow) {
                 Block block = new Block(new Location(planet.getWidth() / 2, y));
