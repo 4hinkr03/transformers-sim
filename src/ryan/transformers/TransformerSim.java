@@ -1,5 +1,6 @@
 package ryan.transformers;
 
+import static ryan.transformers.TransformerConfig.BLOCK_AREAS;
 import static ryan.transformers.TransformerConfig.RANDOM;
 
 import prins.simulator.Simulator;
@@ -9,6 +10,7 @@ import ryan.transformers.model.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -57,9 +59,8 @@ public class TransformerSim extends Simulator {
 
     @Override
     protected void update() {
-        if (step % TransformerConfig.MAX_PATH  == 0) {
-            System.out.println("generation = " + generation
-            );
+        if (step % TransformerConfig.MAX_PATH == 0) {
+            System.out.println("generation = " + generation);
             bots.forEach(bot -> {
                 bot.setFitness(planet.calculateFitness(allSparks, bot));
                 bot.resetCollisions();
@@ -80,11 +81,10 @@ public class TransformerSim extends Simulator {
         }
 
         //autobots act
-        for(AutoBot bot : bots) {
-            if(step % bot.getSize() == 0) {
+        for (AutoBot bot : bots) {
+            if (step % bot.getSize() == 0) {
                 bot.act(planet);
             }
-
         }
 
         //set allspark locations - ensure it remains on the sim
@@ -102,8 +102,8 @@ public class TransformerSim extends Simulator {
         List<AutoBot> genePool = generateGenePool();
         List<AutoBot> selection = new ArrayList<>();
         System.out.println("genepool=" + genePool.size());
-        if(!genePool.isEmpty()) {
-            for(int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
+        if (!genePool.isEmpty()) {
+            for (int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
                 AutoBot randomAutoBot = genePool.get(random.nextInt(genePool.size()));
                 selection.add(reproduce(randomAutoBot));
             }
@@ -113,29 +113,30 @@ public class TransformerSim extends Simulator {
 
     /**
      * Generates a gene pool based on the bots fitness
+     *
      * @return a gene pool of AutoBots proportioned by their respective fitness
      */
     private List<AutoBot> generateGenePool() {
         List<AutoBot> genePool = new ArrayList<>();
         int totalSize = 0;
-        for(AutoBot bot : bots) {
+        for (AutoBot bot : bots) {
             // calculate the number of rockets to add to the gene pool
             // the greater the fitness, the more rockets added to the gene pool
             int botSize = (int) (bot.getFitness() * 100 * TransformerConfig.MAX_TRANSFORMERS);
             // add the number of calculated rockets to the gene pool
-            for(int i = 0; i < botSize; i++) {
+            for (int i = 0; i < botSize; i++) {
                 genePool.add(bot);
                 totalSize += bot.getSize();
             }
-
         }
         double avg = ((double) totalSize) / genePool.size();
-        System.out.println("avg=" + avg);
+        System.out.println("avg size=" + avg);
         return genePool;
     }
 
     /**
      * Reproduce a baby AutoBot based on the genes of the parents (paths)
+     *
      * @param parent AutoBot
      * @return a baby AutoBot with a path generated based on the parents genes
      */
@@ -149,7 +150,8 @@ public class TransformerSim extends Simulator {
 
     /**
      * Merge the paths of the mum and dad to produce a path based on the parents genes
-     * @param start location
+     *
+     * @param start  location
      * @param parent AutoBo
      * @return a path made up of both parents paths as this is makes up their genes
      */
@@ -157,29 +159,29 @@ public class TransformerSim extends Simulator {
         List<Location> path = new ArrayList<>();
         path.add(start);
 
-        for(int i = 1; i < parent.getMaxPathSize(); i++) {
+        for (int i = 1; i < parent.getMaxPathSize(); i++) {
             List<Location> parentPath = parent.getPath();
             Location nextParentLocation = parentPath.get(i);
-            Location currentParentLocation = parentPath.get(i-1);
-            Location currentLocation = path.get(path.size()-1);
+            Location currentParentLocation = parentPath.get(i - 1);
+            Location currentLocation = path.get(path.size() - 1);
             Location nextLocation;
 
-            if(!planet.isAdjacentLocationBlock(currentLocation)) {
+            if (!planet.isAdjacentLocationBlock(currentLocation)) {
                 int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
                 int yDiff = nextParentLocation.getY() - currentParentLocation.getY();
 
                 int nextX = currentLocation.getX() + xDiff;
                 int nextY = currentLocation.getY() + yDiff;
 
-                if(mutate()) {
+                if (mutate()) {
                     Location mutateLoc = planet.getAdjacentLocation(currentLocation);
-                    if(mutateLoc != null) {
+                    if (mutateLoc != null) {
                         nextX = mutateLoc.getX();
                         nextY = mutateLoc.getY();
                     }
                 }
 
-                if(planet.withinBounds(nextX, nextY)) {
+                if (planet.withinBounds(nextX, nextY)) {
                     nextLocation = new Location(nextX, nextY);
                 } else {
                     nextLocation = currentLocation;
@@ -187,7 +189,6 @@ public class TransformerSim extends Simulator {
             } else {
                 nextLocation = currentLocation;
             }
-
 
 
             path.add(nextLocation);
@@ -201,7 +202,7 @@ public class TransformerSim extends Simulator {
      */
     private void populate() {
         //populate all spark
-        for(Location location : TransformerConfig.ALL_SPARK_LOCATIONS) {
+        for (Location location : TransformerConfig.ALL_SPARK_LOCATIONS) {
             AllSpark allSpark = new AllSpark(location);
             allSparks.add(allSpark);
             planet.setAgent(allSpark, allSpark.getLocation());
@@ -209,21 +210,14 @@ public class TransformerSim extends Simulator {
 
 
         //populate autobots
-        for(int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
+        for (int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
             AutoBot bot = new AutoBot(TransformerConfig.AUTOBOT_START_LOCATION);
             bot.generateRandomPath(planet);
             bots.add(bot);
         }
 
         //populate blocks
-        int initalRow = 7;
-        for(int y = 0; y < planet.getHeight(); y++) {
-            if(y <= initalRow || y >= planet.getHeight()-initalRow) {
-                Block block = new Block(new Location(planet.getWidth() / 2, y));
-                blocks.add(block);
-                planet.setAgent(block, block.getLocation());
-            }
-        }
+        populateObstacleCourse();
     }
 
     /**
@@ -237,6 +231,7 @@ public class TransformerSim extends Simulator {
 
     /**
      * Adds all bots passed into the environment
+     *
      * @param bots all bots to be added to the planet
      */
     private void addAll(List<AutoBot> bots) {
@@ -251,4 +246,9 @@ public class TransformerSim extends Simulator {
         return RANDOM.nextDouble() <= TransformerConfig.MUTATION_PROBABILITY;
     }
 
+    private void populateObstacleCourse() {
+        for(BlockArea area : BLOCK_AREAS) {
+            area.getArea().forEach(block -> blocks.add(block));
+        }
+    }
 }
