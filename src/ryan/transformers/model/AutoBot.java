@@ -57,9 +57,9 @@ public class AutoBot extends Agent {
         if(alive) {
             int nextLocationIndex = path.indexOf(location) + 1;
             if(nextLocationIndex < path.size()) {
-                planet.setAgent(null, location);
                 Location nextLocation = path.get(nextLocationIndex);
                 if(!planet.isLocationMatches(nextLocation, Block.class)) {
+                    planet.setAgent(null, location);
                     location = nextLocation;
                     planet.setAgent(this, location);
                 } else {

@@ -4,6 +4,7 @@ import static ryan.transformers.TransformerConfig.BLOCK_AREAS;
 import static ryan.transformers.TransformerConfig.RANDOM;
 
 import prins.simulator.Simulator;
+import prins.simulator.model.Agent;
 import prins.simulator.model.Location;
 import prins.simulator.view.Gui;
 import ryan.transformers.model.*;
@@ -61,7 +62,7 @@ public class TransformerSim extends Simulator {
     @Override
     protected void update() {
         if (step % TransformerConfig.MAX_PATH == 0) {
-            System.out.println("generation = " + generation);
+            //System.out.println("generation = " + generation);
             bots.forEach(bot -> {
                 bot.setFitness(planet.calculateFitness(allSparks, bot));
                 bot.resetCollisions();
@@ -105,7 +106,7 @@ public class TransformerSim extends Simulator {
         Random random = new Random();
         List<AutoBot> genePool = generateGenePool();
         List<AutoBot> selection = new ArrayList<>();
-        System.out.println("genepool=" + genePool.size());
+       // System.out.println("genepool=" + genePool.size());
         if (!genePool.isEmpty()) {
             for (int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
                 AutoBot randomAutoBot = genePool.get(random.nextInt(genePool.size()));
@@ -134,7 +135,7 @@ public class TransformerSim extends Simulator {
             }
         }
         double avg = ((double) totalSize) / genePool.size();
-        System.out.println("avg size=" + avg);
+        //System.out.println("avg size=" + avg);
         return genePool;
     }
 

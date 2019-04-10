@@ -107,8 +107,9 @@ public class Planet extends Environment {
             fitness = 1 / hypotenuse;
         }
         for(int i = 0; i < collisions; i++) {
-            fitness-= fitness * 0.5;
+            fitness -= fitness * 0.1;
         }
+
         return fitness;
     }
 
