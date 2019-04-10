@@ -10,7 +10,7 @@ public class TransformerConfig {
 
     private static final int RANDOM_SEED = 28;
 
-    public static final int MAX_TRANSFORMERS = 1;
+    public static final int MAX_TRANSFORMERS = 100;
     public static final int MAX_PATH = 30;
     public static  final int MAX_SIZE = 5;
     public static final double MUTATION_PROBABILITY = 0.02;
@@ -20,14 +20,11 @@ public class TransformerConfig {
     public static final Location[] ALL_SPARK_LOCATIONS = {
             //new Location(27, 3),
             new Location(27, 27),
-
     };
 
     public static final BlockArea[] BLOCK_AREAS = {
             new BlockArea(0, 5, 10, 1),
-
             new BlockArea(10, 15, 10, 1),
-
             new BlockArea(20, 24, 10, 1)
     };
 

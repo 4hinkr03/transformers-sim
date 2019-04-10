@@ -1,7 +1,6 @@
 package ryan.transformers.model;
 
 import static ryan.transformers.TransformerConfig.RANDOM;
-import static ryan.transformers.TransformerConfig.MAX_SIZE;
 
 import prins.simulator.model.Agent;
 import prins.simulator.model.Location;
@@ -16,7 +15,7 @@ public class AutoBot extends Agent {
     private double fitness;
     private int size;
     private int collisions;
-    private boolean reachedEnergySource;
+    private boolean alive;
 
     public AutoBot(Location location) {
         this(location, RANDOM.nextInt(4) + 1);
@@ -27,7 +26,7 @@ public class AutoBot extends Agent {
         this.path = new ArrayList<>();
         //size between 1 and 5
         this.size = size;
-        this.reachedEnergySource = false;
+        this.alive = true;
         collisions = 0;
 
     }
@@ -55,18 +54,17 @@ public class AutoBot extends Agent {
      * @param planet - AutoBot environment
      */
     public void act(Planet planet) {
-        if(!hasReachedEnergySource()) {
+        if(alive) {
             int nextLocationIndex = path.indexOf(location) + 1;
             if(nextLocationIndex < path.size()) {
                 planet.setAgent(null, location);
                 Location nextLocation = path.get(nextLocationIndex);
-                if(!planet.isBlock(nextLocation)) {
+                if(!planet.isLocationMatches(nextLocation, Block.class)) {
                     location = nextLocation;
                     planet.setAgent(this, location);
                 } else {
                     incrementCollisions();
                 }
-
             }
         }
 
@@ -92,14 +90,6 @@ public class AutoBot extends Agent {
         this.path = path;
     }
 
-    public boolean hasReachedEnergySource() {
-        return reachedEnergySource;
-    }
-
-    public void setReachedEnergySource(boolean reachedEnergySource) {
-        this.reachedEnergySource = reachedEnergySource;
-    }
-
     public int getMaxPathSize() {
         return TransformerConfig.MAX_PATH / getSize();
     }
@@ -114,5 +104,13 @@ public class AutoBot extends Agent {
 
     public int getCollisions() {
         return collisions;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
     }
 }

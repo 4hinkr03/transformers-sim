@@ -8,6 +8,7 @@ import ryan.transformers.TransformerConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -49,14 +50,14 @@ public class Planet extends Environment {
         return random.nextInt((max - min) + 1) + min;
     }
 
-    public boolean isBlock(Location location) {
+    public boolean isLocationMatches(Location location, Class matchClass) {
         Agent agent = getAgent(location);
-        return agent != null && agent instanceof Block;
+        return agent != null && agent.getClass() == matchClass;
     }
 
-    public boolean isAdjacentLocationBlock(Location location) {
+    public Optional<Location> getAdjacentLocationMatches(Location location, Class matchClass) {
         Stream<Location> stream = getAdjacentLocations(location).stream();
-        return stream.filter(loc -> isBlock(loc)).count() > 0;
+        return stream.filter(loc -> isLocationMatches(loc, matchClass)).findAny();
     }
 
     public Location getAdjacentLocation(Location location) {
@@ -64,6 +65,7 @@ public class Planet extends Environment {
         if(!locations.isEmpty()) {
             return locations.get(randomInt(0, locations.size()-1));
         }
+
         return null;
     }
 
@@ -122,7 +124,7 @@ public class Planet extends Environment {
                 Location adjacentLocation = new Location(x, y);
                 if (withinBounds(x, y)) {
                     if (!location.matches(adjacentLocation)) {
-                        if (!isBlock(location)) {
+                        if (!isLocationMatches(adjacentLocation, Block.class)) {
                             adjacentLocations.add(adjacentLocation);
                         }
 

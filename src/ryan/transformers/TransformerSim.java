@@ -9,10 +9,8 @@ import prins.simulator.view.Gui;
 import ryan.transformers.model.*;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class TransformerSim extends Simulator {
 
@@ -21,6 +19,7 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> bots;
     private List<Block> blocks;
     private List<AllSpark> allSparks;
+    private List<Decepticon> decepticons;
     private int generation;
 
     public TransformerSim() {
@@ -29,11 +28,13 @@ public class TransformerSim extends Simulator {
         this.bots = new ArrayList<>();
         this.blocks = new ArrayList<>();
         this.allSparks = new ArrayList<>();
+        this.decepticons = new ArrayList<>();
         this.generation = 1;
 
         gui.registerAgentColors(AutoBot.class, Color.GREEN);
         gui.registerAgentColors(AllSpark.class, Color.RED);
         gui.registerAgentColors(Block.class, Color.BLACK);
+        gui.registerAgentColors(Decepticon.class, Color.PINK);
 
         populate();
     }
@@ -86,6 +87,9 @@ public class TransformerSim extends Simulator {
                 bot.act(planet);
             }
         }
+
+        //decepticons act
+        decepticons.forEach(decepticon -> decepticon.act(planet));
 
         //set allspark locations - ensure it remains on the sim
         allSparks.forEach(allSpark -> planet.setAgent(allSpark, allSpark.getLocation()));
@@ -166,7 +170,7 @@ public class TransformerSim extends Simulator {
             Location currentLocation = path.get(path.size() - 1);
             Location nextLocation;
 
-            if (!planet.isAdjacentLocationBlock(currentLocation)) {
+            if (planet.getAdjacentLocationMatches(currentLocation, Block.class).isEmpty()) {
                 int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
                 int yDiff = nextParentLocation.getY() - currentParentLocation.getY();
 
@@ -208,13 +212,15 @@ public class TransformerSim extends Simulator {
             planet.setAgent(allSpark, allSpark.getLocation());
         }
 
-
         //populate autobots
         for (int i = 0; i < TransformerConfig.MAX_TRANSFORMERS; i++) {
             AutoBot bot = new AutoBot(TransformerConfig.AUTOBOT_START_LOCATION);
             bot.generateRandomPath(planet);
             bots.add(bot);
         }
+
+        //populate decepticons
+        decepticons.add(new Decepticon(new Location(17, 17)));
 
         //populate blocks
         populateObstacleCourse();
@@ -248,7 +254,7 @@ public class TransformerSim extends Simulator {
 
     private void populateObstacleCourse() {
         for(BlockArea area : BLOCK_AREAS) {
-            area.getArea().forEach(block -> blocks.add(block));
+            blocks.addAll(area.getArea());
         }
     }
 }
