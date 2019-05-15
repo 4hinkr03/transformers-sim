@@ -20,7 +20,6 @@ public class TransformerSim extends Simulator {
     private List<AutoBot> bots;
     private List<Block> blocks;
     private List<AllSpark> allSparks;
-    private List<Decepticon> decepticons;
     private int generation;
 
     public TransformerSim() {
@@ -29,14 +28,12 @@ public class TransformerSim extends Simulator {
         this.bots = new ArrayList<>();
         this.blocks = new ArrayList<>();
         this.allSparks = new ArrayList<>();
-        this.decepticons = new ArrayList<>();
         this.generation = 1;
 
         gui.registerAgentColors(AutoBot.class, Color.GREEN);
         gui.registerAgentColors(AllSpark.class, Color.RED);
         gui.registerAgentColors(Block.class, Color.BLACK);
-        gui.registerAgentColors(Decepticon.class, Color.PINK);
-
+        
         populate();
     }
 
@@ -88,9 +85,6 @@ public class TransformerSim extends Simulator {
                 bot.act(planet);
             }
         }
-
-        //decepticons act
-        decepticons.forEach(decepticon -> decepticon.act(planet));
 
         //set allspark locations - ensure it remains on the sim
         allSparks.forEach(allSpark -> planet.setAgent(allSpark, allSpark.getLocation()));
@@ -171,7 +165,7 @@ public class TransformerSim extends Simulator {
             Location currentLocation = path.get(path.size() - 1);
             Location nextLocation;
 
-            if (planet.getAdjacentLocationMatches(currentLocation, Block.class).isEmpty()) {
+            if (!planet.getAdjacentLocationMatches(currentLocation, Block.class).isPresent()) {
                 int xDiff = nextParentLocation.getX() - currentParentLocation.getX();
                 int yDiff = nextParentLocation.getY() - currentParentLocation.getY();
 
@@ -219,9 +213,6 @@ public class TransformerSim extends Simulator {
             bot.generateRandomPath(planet);
             bots.add(bot);
         }
-
-        //populate decepticons
-        decepticons.add(new Decepticon(new Location(17, 17)));
 
         //populate blocks
         populateObstacleCourse();
