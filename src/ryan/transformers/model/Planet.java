@@ -14,125 +14,125 @@ import java.util.stream.Stream;
 
 public class Planet extends Environment {
 
-    private Agent[][] planet;
+	private Agent[][] planet;
 
-    public Planet() {
-        clear();
-    }
+	public Planet() {
+		clear();
+	}
 
-    @Override
-    public void clear() {
-        planet = new Agent[getHeight()][getWidth()];
-    }
+	@Override
+	public void clear() {
+		planet = new Agent[getHeight()][getWidth()];
+	}
 
-    @Override
-    public Agent getAgent(Location location) {
-        return planet[location.getY()][location.getX()];
-    }
+	@Override
+	public Agent getAgent(Location location) {
+		return planet[location.getY()][location.getX()];
+	}
 
-    @Override
-    public int getHeight() {
-        return Config.world_height;
-    }
+	@Override
+	public int getHeight() {
+		return Config.world_height;
+	}
 
-    @Override
-    public int getWidth() {
-        return Config.world_width;
-    }
+	@Override
+	public int getWidth() {
+		return Config.world_width;
+	}
 
-    @Override
-    public void setAgent(Agent agent, Location location) {
-        planet[location.getY()][location.getX()] = agent;
-    }
+	@Override
+	public void setAgent(Agent agent, Location location) {
+		planet[location.getY()][location.getX()] = agent;
+	}
 
-    public static int randomInt(int min, int max) {
-        Random random = TransformerConfig.RANDOM;
-        return random.nextInt((max - min) + 1) + min;
-    }
+	public static int randomInt(int min, int max) {
+		Random random = TransformerConfig.RANDOM;
+		return random.nextInt((max - min) + 1) + min;
+	}
 
-    public boolean isLocationMatches(Location location, Class matchClass) {
-        Agent agent = getAgent(location);
-        return agent != null && agent.getClass() == matchClass;
-    }
+	public boolean isLocationMatches(Location location, Class matchClass) {
+		Agent agent = getAgent(location);
+		return agent != null && agent.getClass() == matchClass;
+	}
 
-    public Optional<Location> getAdjacentLocationMatches(Location location, Class matchClass) {
-        Stream<Location> stream = getAdjacentLocations(location).stream();
-        return stream.filter(loc -> isLocationMatches(loc, matchClass)).findAny();
-    }
+	public Optional<Location> getAdjacentLocationMatches(Location location, Class matchClass) {
+		Stream<Location> stream = getAdjacentLocations(location).stream();
+		return stream.filter(loc -> isLocationMatches(loc, matchClass)).findAny();
+	}
 
-    public Location getAdjacentLocation(Location location) {
-        List<Location> locations = getAdjacentLocations(location);
-        if(!locations.isEmpty()) {
-            return locations.get(randomInt(0, locations.size()-1));
-        }
+	public Location getAdjacentLocation(Location location) {
+		List<Location> locations = getAdjacentLocations(location);
+		if (!locations.isEmpty()) {
+			return locations.get(randomInt(0, locations.size() - 1));
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public void clearWorld() {
-        for(int x = 0; x < getWidth(); x++) {
-            for(int y = 0; y < getHeight(); y++) {
-                Location location = new Location(x, y);
-                if(getAgent(location) instanceof AutoBot) {
-                    setAgent(null, new Location(x, y));
-                }
-            }
-        }
-    }
+	public void clearWorld() {
+		for (int x = 0; x < getWidth(); x++) {
+			for (int y = 0; y < getHeight(); y++) {
+				Location location = new Location(x, y);
+				if (getAgent(location) instanceof AutoBot) {
+					setAgent(null, new Location(x, y));
+				}
+			}
+		}
+	}
 
-    public boolean withinBounds(int x, int y) {
-        return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
-    }
+	public boolean withinBounds(int x, int y) {
+		return x >= 0 && x < getWidth() && y >= 0 && y < getHeight();
+	}
 
-    public double calculateFitness(List<AllSpark> allSparks, AutoBot autobot) {
-        double fitness = 0.0;
-        for(AllSpark allSpark : allSparks) {
-            double allSparkFitness = calculateFitness(allSpark.getLocation(), autobot);
-            if(allSparkFitness > fitness) {
-                fitness = allSparkFitness;
-            }
-        }
-        return fitness;
-    }
+	public double calculateFitness(List<AllSpark> allSparks, AutoBot autobot) {
+		double fitness = 0.0;
+		for (AllSpark allSpark : allSparks) {
+			double allSparkFitness = calculateFitness(allSpark.getLocation(), autobot);
+			if (allSparkFitness > fitness) {
+				fitness = allSparkFitness;
+			}
+		}
+		return fitness;
+	}
 
-    private double calculateFitness(Location allSpark, AutoBot autobot) {
-        int xDiff = autobot.getLocation().getX() - allSpark.getX();
-        int yDiff = autobot.getLocation().getY() - allSpark.getY();
-        double hypotenuse = Math.hypot(xDiff, yDiff);
-        int collisions = autobot.getCollisions();
-        double fitness = 0;
-        if(hypotenuse == 0) {
-            fitness = 1;
-        } else {
-            fitness = 1 / hypotenuse;
-        }
-        for(int i = 0; i < collisions; i++) {
-            fitness -= fitness * 0.1;
-        }
+	private double calculateFitness(Location allSpark, AutoBot autobot) {
+		int xDiff = autobot.getLocation().getX() - allSpark.getX();
+		int yDiff = autobot.getLocation().getY() - allSpark.getY();
+		double hypotenuse = Math.hypot(xDiff, yDiff);
+		int collisions = autobot.getCollisions();
+		double fitness = 0;
+		if (hypotenuse == 0) {
+			fitness = 1;
+		} else {
+			fitness = 1 / hypotenuse;
+		}
+		for (int i = 0; i < collisions; i++) {
+			fitness -= fitness * 0.1;
+		}
 
-        return fitness;
-    }
+		return fitness;
+	}
 
-    private List<Location> getAdjacentLocations(Location location) {
-        List<Location> adjacentLocations = new ArrayList<>();
-        int currentX = location.getX();
-        int currentY = location.getY();
+	private List<Location> getAdjacentLocations(Location location) {
+		List<Location> adjacentLocations = new ArrayList<>();
+		int currentX = location.getX();
+		int currentY = location.getY();
 
-        for (int xOffset = -1; xOffset <= 1; xOffset++) {
-            for (int yOffset = -1; yOffset <= 1; yOffset++) {
-                int x = currentX + xOffset;
-                int y = currentY + yOffset;
-                Location adjacentLocation = new Location(x, y);
-                if (withinBounds(x, y)) {
-                    if (!location.matches(adjacentLocation)) {
-                        if (!isLocationMatches(adjacentLocation, Block.class)) {
-                            adjacentLocations.add(adjacentLocation);
-                        }
+		for (int xOffset = -1; xOffset <= 1; xOffset++) {
+			for (int yOffset = -1; yOffset <= 1; yOffset++) {
+				int x = currentX + xOffset;
+				int y = currentY + yOffset;
+				Location adjacentLocation = new Location(x, y);
+				if (withinBounds(x, y)) {
+					if (!location.matches(adjacentLocation)) {
+						if (!isLocationMatches(adjacentLocation, Block.class)) {
+							adjacentLocations.add(adjacentLocation);
+						}
 
-                    }
-                }
-            }
-        }
-        return adjacentLocations;
-    }
+					}
+				}
+			}
+		}
+		return adjacentLocations;
+	}
 }
